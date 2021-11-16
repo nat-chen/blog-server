@@ -14,13 +14,13 @@ export class ArticleController {
 
   @Get('list')
   @ApiOkResponse({ description: '文章列表', type: ArticleListResponse })
-  async getMore(@Query() listDTO: ListDTO): Promise<ArticleListData> {
+  async getMore(@Query() listDTO: ListDTO): Promise<ArticleListVO> {
     return await this.articleService.getMore(listDTO);
   }
 
   @Get('info')
   @ApiOkResponse({ description: '文章详情', type: ArticleInfoResponse })
-  async getOne(@Query() idDTO: IdDTO): Promise<ArticleListData> {
+  async getOne(@Query() idDTO: IdDTO): Promise<ArticleInfoVO> {
     return await this.articleService.getOne(idDTO);
   }
 
@@ -28,21 +28,19 @@ export class ArticleController {
   @ApiOkResponse({ description: '创建文章', type: ArticleInfoResponse })
   async create(
     @Body() articleCreateDTO: ArticleCreateDTO,
-  ): Promise<ArticleInfoData> {
+  ): Promise<ArticleInfoVO> {
     return await this.articleService.create(articleCreateDTO);
   }
 
   @Post('edit')
   @ApiOkResponse({ description: '编辑文章', type: ArticleInfoResponse })
-  async update(
-    @Body() articleEditDTO: ArticleEditDTO,
-  ): Promise<ArticleInfoData> {
+  async update(@Body() articleEditDTO: ArticleEditDTO): Promise<ArticleInfoVO> {
     return await this.articleService.update(articleEditDTO);
   }
 
   @Post('delete')
   @ApiOkResponse({ description: '删除文章', type: ArticleInfoResponse })
-  async delete(@Body() idDTO: IdDTO): Promise<ArticleInfoData> {
+  async delete(@Body() idDTO: IdDTO): Promise<ArticleInfoVO> {
     return await this.articleService.delete(idDTO);
   }
 }
