@@ -1,54 +1,59 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Controller, Body, Query, Get, Post, UseGuards } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { ArticleCreateDTO } from './dto/article-create.dto';
 import { ArticleEditDTO } from './dto/article-edit.dto';
-import { IdDTO } from './dto/id.dto';
-import { ListDTO } from './dto/list.dto';
-import { ApiTags, ApiOkResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { ArticleInfoVO, ArticleInfoResponse } from './vo/article-info.vo';
-import { ArticleListResponse, ArticleListVO } from './vo/article-list.vo';
+import {
+  ApiTags,
+  ApiOkResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+} from '@nestjs/swagger';
+import { ArticleInfoVO, ArticleInfoSuccessVO } from './vo/article-info.vo';
+import { ArticleListSuccessVO, ArticleListVO } from './vo/article-list.vo';
 import { AuthGuard } from '@nestjs/passport';
+import { PageDTO } from 'src/common/dto/page.dto';
+import { IdDTO } from 'src/common/dto/id.dto';
 
 @ApiTags('文章模块')
 @Controller('article')
 export class ArticleController {
   constructor(private articleService: ArticleService) {}
 
+  @ApiOkResponse({ description: '文章列表', type: ArticleListSuccessVO })
   @Get('list')
-  @ApiOkResponse({ description: '文章列表', type: ArticleListResponse })
-  async getMore(@Query() listDTO: ListDTO): Promise<ArticleListVO> {
-    return await this.articleService.getMore(listDTO);
+  async getMore(@Query() pageDTO: PageDTO): Promise<ArticleListVO> {
+    return await this.articleService.getMore(pageDTO);
   }
 
+  @ApiOkResponse({ description: '文章详情', type: ArticleInfoSuccessVO })
   @Get('info')
-  @ApiOkResponse({ description: '文章详情', type: ArticleInfoResponse })
-  async getOne(@Query() idDTO: IdDTO): Promise<ArticleInfoVO> {
-    return await this.articleService.getOne(idDTO);
+  async getOne(@Query() idDto: IdDTO): Promise<ArticleInfoVO> {
+    return await this.articleService.getOne(idDto);
   }
 
+  @ApiBearerAuth()
+  @ApiCreatedResponse({ description: '创建文章', type: ArticleInfoSuccessVO })
   @UseGuards(AuthGuard('jwt'))
   @Post('create')
-  @ApiBearerAuth()
-  @ApiOkResponse({ description: '创建文章', type: ArticleInfoResponse })
   async create(
     @Body() articleCreateDTO: ArticleCreateDTO,
   ): Promise<ArticleInfoVO> {
     return await this.articleService.create(articleCreateDTO);
   }
 
+  @ApiBearerAuth()
+  @ApiCreatedResponse({ description: '编辑文章', type: ArticleInfoSuccessVO })
   @UseGuards(AuthGuard('jwt'))
   @Post('edit')
-  @ApiBearerAuth()
-  @ApiOkResponse({ description: '编辑文章', type: ArticleInfoResponse })
   async update(@Body() articleEditDTO: ArticleEditDTO): Promise<ArticleInfoVO> {
     return await this.articleService.update(articleEditDTO);
   }
 
+  @ApiBearerAuth()
+  @ApiCreatedResponse({ description: '删除文章', type: ArticleInfoSuccessVO })
   @UseGuards(AuthGuard('jwt'))
   @Post('delete')
-  @ApiBearerAuth()
-  @ApiOkResponse({ description: '删除文章', type: ArticleInfoResponse })
-  async delete(@Body() idDTO: IdDTO): Promise<ArticleInfoVO> {
-    return await this.articleService.delete(idDTO);
+  async delete(@Body() idDto: IdDTO): Promise<ArticleInfoVO> {
+    return await this.articleService.delete(idDto);
   }
 }
