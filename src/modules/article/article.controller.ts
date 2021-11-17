@@ -1,13 +1,15 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { ArticleCreateDTO } from './dto/article-create.dto';
 import { ArticleEditDTO } from './dto/article-edit.dto';
 import { IdDTO } from './dto/id.dto';
 import { ListDTO } from './dto/list.dto';
-import { ApiTags, ApiOkResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOkResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ArticleInfoVO, ArticleInfoResponse } from './vo/article-info.vo';
 import { ArticleListResponse, ArticleListVO } from './vo/article-list.vo';
+import { AuthGuard } from '@nestjs/passport';
 
+@ApiTags('文章模块')
 @Controller('article')
 export class ArticleController {
   constructor(private articleService: ArticleService) {}
@@ -24,7 +26,9 @@ export class ArticleController {
     return await this.articleService.getOne(idDTO);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post('create')
+  @ApiBearerAuth()
   @ApiOkResponse({ description: '创建文章', type: ArticleInfoResponse })
   async create(
     @Body() articleCreateDTO: ArticleCreateDTO,
@@ -32,13 +36,17 @@ export class ArticleController {
     return await this.articleService.create(articleCreateDTO);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post('edit')
+  @ApiBearerAuth()
   @ApiOkResponse({ description: '编辑文章', type: ArticleInfoResponse })
   async update(@Body() articleEditDTO: ArticleEditDTO): Promise<ArticleInfoVO> {
     return await this.articleService.update(articleEditDTO);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post('delete')
+  @ApiBearerAuth()
   @ApiOkResponse({ description: '删除文章', type: ArticleInfoResponse })
   async delete(@Body() idDTO: IdDTO): Promise<ArticleInfoVO> {
     return await this.articleService.delete(idDTO);
