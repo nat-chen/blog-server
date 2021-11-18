@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { Article } from './entity/article.entity';
 import { getPagination } from 'src/utils/index.util';
 import { PageDTO } from 'src/common/dto/Page.dto';
-import { IdDTO } from 'src/common/dto/common.dto';
+import { IdDTO } from 'src/common/dto/id.dto';
 import { ArticleListDTO } from './dto/article-list.dto';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class ArticleService {
     private readonly articleRepository: Repository<Article>,
   ) {}
 
-  async getMore(pageDTO: PageDTO) {
+  async getMany(pageDTO: PageDTO) {
     const { page = 1, pageSize = 10 } = pageDTO;
     const getList = this.articleRepository
       .createQueryBuilder('article')
@@ -43,7 +43,7 @@ export class ArticleService {
     };
   }
 
-  async getMoreByTagId(articleListDTO: ArticleListDTO) {
+  async getManyByTagId(articleListDTO: ArticleListDTO) {
     const { page = 1, pageSize = 10, tagId } = articleListDTO;
     const getList = this.articleRepository
       .createQueryBuilder('article')

@@ -20,8 +20,8 @@ export class TagController {
 
   @ApiOkResponse({ description: '标签列表', type: TagListSuccessVO })
   @Get('list')
-  getMore(): Promise<TagListVO> {
-    return this.tagService.getMore();
+  getMany(): Promise<TagListVO> {
+    return this.tagService.getMany();
   }
 
   @ApiBearerAuth()

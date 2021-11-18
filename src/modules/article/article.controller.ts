@@ -11,8 +11,7 @@ import {
 import { ArticleInfoVO, ArticleInfoSuccessVO } from './vo/article-info.vo';
 import { ArticleListSuccessVO, ArticleListVO } from './vo/article-list.vo';
 import { AuthGuard } from '@nestjs/passport';
-import { PageDTO } from 'src/common/dto/page.dto';
-import { IdDTO } from 'src/common/dto/common.dto';
+import { IdDTO } from 'src/common/dto/id.dto';
 import { ArticleListDTO } from './dto/article-list.dto';
 
 @ApiTags('文章模块')
@@ -22,14 +21,14 @@ export class ArticleController {
 
   @ApiOkResponse({ description: '文章列表', type: ArticleListSuccessVO })
   @Get('list')
-  async getMore(
+  async getMany(
     @Query() articleListDTO: ArticleListDTO,
   ): Promise<ArticleListVO> {
     const { tagId } = articleListDTO;
     if (tagId) {
-      return await this.articleService.getMoreByTagId(articleListDTO);
+      return await this.articleService.getManyByTagId(articleListDTO);
     }
-    return await this.articleService.getMore(articleListDTO);
+    return await this.articleService.getMany(articleListDTO);
   }
 
   @ApiOkResponse({ description: '文章详情', type: ArticleInfoSuccessVO })
