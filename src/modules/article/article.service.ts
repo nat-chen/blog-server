@@ -6,7 +6,8 @@ import { Repository } from 'typeorm';
 import { Article } from './entity/article.entity';
 import { getPagination } from 'src/utils/index.util';
 import { PageDTO } from 'src/common/dto/Page.dto';
-import { IdDTO } from 'src/common/dto/id.dto';
+import { IdDTO } from 'src/common/dto/common.dto';
+import { ArticleListDTO } from './dto/article-list.dto';
 
 @Injectable()
 export class ArticleService {
@@ -20,6 +21,7 @@ export class ArticleService {
     const getList = this.articleRepository
       .createQueryBuilder('article')
       .where({ isDelete: false })
+      .leftJoin('article.tags', 'tag')
       .select([
         'article.id',
         'article.title',
@@ -27,12 +29,42 @@ export class ArticleService {
         'article.createTime',
         'article.updateTime',
       ])
+      .addSelect(['tag.id', 'tag.label'])
       .skip((page - 1) * pageSize)
       .take(pageSize)
       .getManyAndCount();
 
     const [list, total] = await getList;
-    const pagination = getPagination(total, page, pageSize);
+    const pagination = getPagination(total, pageSize, page);
+
+    return {
+      list,
+      pagination,
+    };
+  }
+
+  async getMoreByTagId(articleListDTO: ArticleListDTO) {
+    const { page = 1, pageSize = 10, tagId } = articleListDTO;
+    const getList = this.articleRepository
+      .createQueryBuilder('article')
+      .where({ isDelete: 0 })
+      .andWhere('tag.id = :id', { id: tagId })
+      .andWhere('tag.isDelete = :isDelete', { isDelete: false })
+      .leftJoin('article.tags', 'tag')
+      .select([
+        'article.id',
+        'article.title',
+        'article.description',
+        'article.createTime',
+        'article.updateTime',
+      ])
+      .addSelect(['tag.id', 'tag.label'])
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
+      .getManyAndCount();
+
+    const [list, total] = await getList;
+    const pagination = getPagination(total, pageSize, page);
 
     return {
       list,
@@ -45,6 +77,15 @@ export class ArticleService {
     const articleDetial = await this.articleRepository
       .createQueryBuilder('article')
       .where('article.id = :id', { id })
+      .leftJoin('article.tags', 'tag')
+      .select([
+        'article.id',
+        'article.title',
+        'article.description',
+        'article.createTime',
+        'article.updateTime',
+      ])
+      .addSelect(['tag.id', 'tag.label'])
       .getOne();
 
     if (!articleDetial) {
@@ -63,9 +104,9 @@ export class ArticleService {
    */
   async create(articleCreateDTO: ArticleCreateDTO) {
     const article = new Article();
-    article.title = articleCreateDTO.title;
-    article.description = articleCreateDTO.description;
-    article.content = articleCreateDTO.content;
+    for (let key in articleCreateDTO) {
+      article[key] = articleCreateDTO[key];
+    }
     const result = await this.articleRepository.save(article);
 
     return {
@@ -100,7 +141,7 @@ export class ArticleService {
    * @param idDTO
    * @returns
    */
-  async delete(idDTO: IdDTO) {
+  async remove(idDTO: IdDTO) {
     const { id } = idDTO;
     let articleToUpdate = await this.articleRepository.findOne({ id });
     articleToUpdate.isDelete = true;

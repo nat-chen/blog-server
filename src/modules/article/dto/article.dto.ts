@@ -1,4 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
+import { TagUpdateDTO } from 'src/modules/tag/dto/tag-update.dto';
 
 export class ArticleDTO {
   /**
@@ -21,4 +22,10 @@ export class ArticleDTO {
    */
   @IsNotEmpty({ message: '请输入文章内容' })
   readonly content: string;
+
+  /**
+   * 标签 格式 [{id: 1}, {id: 2}]
+   * @example  [{id: 1}]
+   */
+  readonly tags?: TagUpdateDTO[];
 }

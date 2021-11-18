@@ -12,7 +12,8 @@ import { ArticleInfoVO, ArticleInfoSuccessVO } from './vo/article-info.vo';
 import { ArticleListSuccessVO, ArticleListVO } from './vo/article-list.vo';
 import { AuthGuard } from '@nestjs/passport';
 import { PageDTO } from 'src/common/dto/page.dto';
-import { IdDTO } from 'src/common/dto/id.dto';
+import { IdDTO } from 'src/common/dto/common.dto';
+import { ArticleListDTO } from './dto/article-list.dto';
 
 @ApiTags('文章模块')
 @Controller('article')
@@ -21,8 +22,14 @@ export class ArticleController {
 
   @ApiOkResponse({ description: '文章列表', type: ArticleListSuccessVO })
   @Get('list')
-  async getMore(@Query() pageDTO: PageDTO): Promise<ArticleListVO> {
-    return await this.articleService.getMore(pageDTO);
+  async getMore(
+    @Query() articleListDTO: ArticleListDTO,
+  ): Promise<ArticleListVO> {
+    const { tagId } = articleListDTO;
+    if (tagId) {
+      return await this.articleService.getMoreByTagId(articleListDTO);
+    }
+    return await this.articleService.getMore(articleListDTO);
   }
 
   @ApiOkResponse({ description: '文章详情', type: ArticleInfoSuccessVO })
@@ -44,7 +51,7 @@ export class ArticleController {
   @ApiBearerAuth()
   @ApiCreatedResponse({ description: '编辑文章', type: ArticleInfoSuccessVO })
   @UseGuards(AuthGuard('jwt'))
-  @Post('edit')
+  @Post('update')
   async update(@Body() articleEditDTO: ArticleEditDTO): Promise<ArticleInfoVO> {
     return await this.articleService.update(articleEditDTO);
   }
@@ -52,8 +59,8 @@ export class ArticleController {
   @ApiBearerAuth()
   @ApiCreatedResponse({ description: '删除文章', type: ArticleInfoSuccessVO })
   @UseGuards(AuthGuard('jwt'))
-  @Post('delete')
-  async delete(@Body() idDto: IdDTO): Promise<ArticleInfoVO> {
-    return await this.articleService.delete(idDto);
+  @Post('remove')
+  async remove(@Body() idDto: IdDTO): Promise<ArticleInfoVO> {
+    return await this.articleService.remove(idDto);
   }
 }

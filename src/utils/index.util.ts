@@ -11,9 +11,9 @@ export const getPagination = (
   page: number) => {
   const pages = Math.ceil(total / pageSize);
   return {
-    total,
-    page,
-    pageSize,
-    pages,
+    total: Number(total),
+    page: Number(page),
+    pageSize: Number(pageSize),
+    pages: Number(pages),
   };
 };
